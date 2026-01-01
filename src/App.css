@@ -1,38 +1,281 @@
-.App {
-  text-align: center;
+/* ===============================
+   CONSTRUCTION COLOR THEME
+   =============================== */
+
+:root {
+  --primary: #1f7a8c;          /* Steel blue / deep teal */
+  --primary-light: #f4f9fb;    /* Light background */
+  --border: #d6e4ea;           /* Soft grey borders */
+  --text-main: #2b2b2b;
+
+  --success-bg: #e6f4ea;       /* Add item */
+  --success-text: #1e7f43;
+
+  --danger-bg: #ffecec;        /* Remove item */
+  --danger-text: #b00020;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* ===============================
+   BASE LAYOUT
+   =============================== */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  color: var(--text-main);
+  background: linear-gradient(
+    to bottom,
+    #eef6f9,
+    #f9fbfc
+  );
+}
+.company-logo {
+  width: 400px;
+  height: auto;
+  object-fit: contain;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.app {
+  max-width: 900px;
+  margin: 30px auto;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 6px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* ===============================
+   HEADER
+   =============================== */
+
+.invoice-header {
   display: flex;
-  flex-direction: column;
+  justify-content: center;   /* center horizontally */
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 14px;
+  margin-bottom: 20px;
 }
 
-.App-link {
-  color: #61dafb;
+
+header h1 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 26px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+header p {
+  margin: 2px 0;
+  font-size: 14px;
+}
+
+/* ===============================
+   FORM / INPUT SECTION
+   =============================== */
+
+.no-print {
+  background-color: #f7fbfd;
+  border: 1px solid var(--border);
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+}
+
+label {
+  font-size: 13px;
+  color: #555;
+  margin-top: 10px;
+  display: block;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 6px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ===============================
+   ITEM ROWS
+   =============================== */
+
+.item-row {
+  background-color: #fbfdff;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+section h2,
+section h3 {
+  color: var(--primary);
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
+
+button {
+  border-radius: 4px;
+  font-size: 13px;
+  border: none;
+}
+
+/* Add item */
+button.add-item {
+  background-color: var(--success-bg);
+  border: 1px solid #b7e1c1;
+  color: var(--success-text);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+/* Remove item */
+button.remove-item {
+  background-color: var(--danger-bg);
+  border: 1px solid #f5bcbc;
+  color: var(--danger-text);
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+/* Print button */
+button.print-btn {
+  background-color: var(--primary);
+  color: #ffffff;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+/* ===============================
+   TABLE (INVOICE)
+   =============================== */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  font-weight: bold;
+}
+
+th,
+td {
+  border: 1px solid var(--border);
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* ===============================
+   GRAND TOTAL
+   =============================== */
+
+.grand-total {
+  margin-top: 15px;
+  text-align: right;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+/* ===============================
+   SPECIFICATIONS
+   =============================== */
+
+.spec-box {
+  margin-top: 20px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  background-color: #fcfcfc;
+}
+
+/* ===============================
+   PRINT (EDGE SAFE)
+   =============================== */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+@media print {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+    overflow: hidden;
   }
-  to {
-    transform: rotate(360deg);
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-only,
+  .print-only * {
+    visibility: visible;
+  }
+
+  .print-only {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  /* Make invoice fit page */
+  .app {
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  /* Table fixes */
+  table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  th,
+  td {
+    font-size: 12px;
+    padding: 6px;
+    word-wrap: break-word;
+  }
+
+  /* Reduce heading size slightly */
+  h1 {
+    font-size: 22px;
+  }
+
+  h2, h3 {
+    font-size: 15px;
   }
 }
+@media print {
+  .company-logo {
+    width: 800px;
+  }
+}
+
+
+
+
