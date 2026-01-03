@@ -275,6 +275,24 @@ td {
     width: 800px;
   }
 }
+/* ===============================
+   RESPONSIVE TABLE FIX (MOBILE)
+   =============================== */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-wrapper table {
+  min-width: 650px;
+}
+
+@media (max-width: 768px) {
+  .table-wrapper {
+    -webkit-overflow-scrolling: touch;
+  }
+}
 
 
 

@@ -5,53 +5,53 @@ import "./App.css";
 function Invoice() {
   const navigate = useNavigate();
 
-  // Bill details
   const [billNo, setBillNo] = useState("");
   const [billDate, setBillDate] = useState("");
   const [clientName, setClientName] = useState("");
   const [clientAddress, setClientAddress] = useState("");
   const [specification, setSpecification] = useState("");
 
-  // Items
   const [items, setItems] = useState([
     {
       partName: "",
-      height: "",          // mm (always recorded)
-      width: "",           // mm (always recorded)
-      glassThickness: "",
-      glassType: "Plain",
+      width: "",
+      height: "",
       quantity: "",
       rate: "",
-      rateType: "sqft"     // sqft | fixed
+      rateType: "sqft",
+      isEditing: true
     }
   ]);
 
-  const addRow = () => {
-    setItems([
-      ...items,
-      {
-        partName: "",
-        height: "",
-        width: "",
-        glassThickness: "",
-        glassType: "Plain",
-        quantity: "",
-        rate: "",
-        rateType: "sqft"
-      }
-    ]);
+  const addRowAfter = (index) => {
+    const newItems = [...items];
+    newItems.splice(index + 1, 0, {
+      partName: "",
+      width: "",
+      height: "",
+      quantity: "",
+      rate: "",
+      rateType: "sqft",
+      isEditing: true
+    });
+    setItems(newItems);
   };
 
-  const removeRow = (indexToRemove) => {
+  const removeRow = (index) => {
     if (items.length === 1) return;
-    setItems(items.filter((_, index) => index !== indexToRemove));
+    setItems(items.filter((_, i) => i !== index));
   };
 
-  // Grand total (rounded)
+  const toggleEdit = (index, value) => {
+    const newItems = [...items];
+    newItems[index].isEditing = value;
+    setItems(newItems);
+  };
+
   const grandTotal = items.reduce((total, item) => {
     const sqft =
-      item.rateType === "sqft" && item.height && item.width
-        ? (item.height * item.width) / 92903
+      item.rateType === "sqft" && item.width && item.height
+        ? (item.width * item.height) / 92903
         : 0;
 
     const amount =
@@ -59,14 +59,12 @@ function Invoice() {
         ? Math.round(sqft * item.quantity * item.rate)
         : Math.round(item.rate * item.quantity);
 
-    return total + amount;
+    return total + (amount || 0);
   }, 0);
 
   return (
     <>
-      {/* ================= SCREEN VIEW ================= */}
       <div className="app">
-
         <button className="no-print back-btn" onClick={() => navigate("/")}>
           ← Back to Home
         </button>
@@ -99,115 +97,103 @@ function Invoice() {
           {items.map((item, index) => (
             <div key={index} className="item-row">
 
-              {items.length > 1 && (
-                <button
-                  className="remove-item"
-                  onClick={() => removeRow(index)}
-                  style={{ float: "right" }}
-                >
-                  ✕
-                </button>
+              {!item.isEditing && (
+                <>
+                  <strong>{index + 1}. {item.partName}</strong>
+                  <p>
+                    {item.width} × {item.height} mm | Qty {item.quantity} | Rate {item.rate}
+                  </p>
+
+                  <button className="add-item" onClick={() => toggleEdit(index, true)}>
+                    Edit
+                  </button>
+
+                  <button
+                    className="add-item"
+                    onClick={() => addRowAfter(index)}
+                    style={{ marginLeft: "6px" }}
+                  >
+                    +
+                  </button>
+                </>
               )}
 
-              <label>Part Name</label>
-              <input
-                value={item.partName}
-                onChange={(e) => {
-                  const newItems = [...items];
-                  newItems[index].partName = e.target.value;
-                  setItems(newItems);
-                }}
-              />
+              {item.isEditing && (
+                <>
+                  <label>Particulars</label>
+                  <input
+                    value={item.partName}
+                    onChange={(e) => {
+                      const newItems = [...items];
+                      newItems[index].partName = e.target.value;
+                      setItems(newItems);
+                    }}
+                  />
 
-              <label>Calculation Type</label>
-              <select
-                value={item.rateType}
-                onChange={(e) => {
-                  const newItems = [...items];
-                  newItems[index].rateType = e.target.value;
-                  setItems(newItems);
-                }}
-              >
-                <option value="sqft">Per Sqft</option>
-                <option value="fixed">Fixed Amount</option>
-              </select>
+                  <label>Width (mm)</label>
+                  <input
+                    type="number"
+                    value={item.width}
+                    onChange={(e) => {
+                      const newItems = [...items];
+                      newItems[index].width = e.target.value;
+                      setItems(newItems);
+                    }}
+                  />
 
-              {/* HEIGHT & WIDTH ALWAYS SHOWN */}
-              <label>Height (mm)</label>
-              <input
-                type="number"
-                value={item.height}
-                onChange={(e) => {
-                  const newItems = [...items];
-                  newItems[index].height = e.target.value;
-                  setItems(newItems);
-                }}
-              />
+                  <label>Height (mm)</label>
+                  <input
+                    type="number"
+                    value={item.height}
+                    onChange={(e) => {
+                      const newItems = [...items];
+                      newItems[index].height = e.target.value;
+                      setItems(newItems);
+                    }}
+                  />
 
-              <label>Width (mm)</label>
-              <input
-                type="number"
-                value={item.width}
-                onChange={(e) => {
-                  const newItems = [...items];
-                  newItems[index].width = e.target.value;
-                  setItems(newItems);
-                }}
-              />
+                  <label>Quantity</label>
+                  <input
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => {
+                      const newItems = [...items];
+                      newItems[index].quantity = e.target.value;
+                      setItems(newItems);
+                    }}
+                  />
 
-              <label>Glass Thickness (mm)</label>
-              <input
-                type="number"
-                value={item.glassThickness}
-                onChange={(e) => {
-                  const newItems = [...items];
-                  newItems[index].glassThickness = e.target.value;
-                  setItems(newItems);
-                }}
-              />
+                  <label>Rate</label>
+                  <input
+                    type="number"
+                    value={item.rate}
+                    onChange={(e) => {
+                      const newItems = [...items];
+                      newItems[index].rate = e.target.value;
+                      setItems(newItems);
+                    }}
+                  />
 
-              <label>Glass Type</label>
-              <select
-                value={item.glassType}
-                onChange={(e) => {
-                  const newItems = [...items];
-                  newItems[index].glassType = e.target.value;
-                  setItems(newItems);
-                }}
-              >
-                <option value="Plain">Plain</option>
-                <option value="Toughened">Toughened</option>
-              </select>
+                  <button
+                    className="print-btn"
+                    onClick={() => toggleEdit(index, false)}
+                  >
+                    Done
+                  </button>
 
-              <label>Quantity</label>
-              <input
-                type="number"
-                value={item.quantity}
-                onChange={(e) => {
-                  const newItems = [...items];
-                  newItems[index].quantity = e.target.value;
-                  setItems(newItems);
-                }}
-              />
-
-              <label>
-                {item.rateType === "sqft" ? "Rate (per sqft)" : "Fixed Amount"}
-              </label>
-              <input
-                type="number"
-                value={item.rate}
-                onChange={(e) => {
-                  const newItems = [...items];
-                  newItems[index].rate = e.target.value;
-                  setItems(newItems);
-                }}
-              />
+                  {items.length > 1 && (
+                    <button
+                      className="remove-item"
+                      onClick={() => removeRow(index)}
+                      style={{ marginLeft: "8px" }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           ))}
-
-          <button className="add-item" onClick={addRow}>
-            + Add item
-          </button>
 
           <h3>Specification / Terms</h3>
           <textarea
@@ -222,7 +208,7 @@ function Invoice() {
         </button>
       </div>
 
-      {/* ================= PRINT VIEW ================= */}
+      {/* PRINT VIEW */}
       <section className="print-only">
         <div className="app">
 
@@ -230,71 +216,49 @@ function Invoice() {
             <img src="/logo.png" alt="Janus Logo" className="company-logo" />
           </header>
 
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div>
-              <strong>To:</strong>
-              <p>{clientName}</p>
-              <p style={{ whiteSpace: "pre-line" }}>{clientAddress}</p>
-            </div>
+          <div className="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>SI</th>
+                  <th>Particulars</th>
+                  <th>W</th>
+                  <th>H</th>
+                  <th>Qty</th>
+                  <th>Rate</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, index) => {
+                  const sqft =
+                    item.rateType === "sqft"
+                      ? (item.width * item.height) / 92903
+                      : 0;
 
-            <div style={{ textAlign: "right" }}>
-              <p><strong>Bill No:</strong> {billNo}</p>
-              <p><strong>Date:</strong> {billDate}</p>
-            </div>
+                  const amount =
+                    item.rateType === "sqft"
+                      ? Math.round(sqft * item.quantity * item.rate)
+                      : Math.round(item.rate * item.quantity);
+
+                  return (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{item.partName}</td>
+                      <td>{item.width}</td>
+                      <td>{item.height}</td>
+                      <td>{item.quantity}</td>
+                      <td>{item.rate}</td>
+                      <td>₹{amount}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th>Part</th>
-                <th>Calc</th>
-                <th>H (mm)</th>
-                <th>W (mm)</th>
-                <th>Glass</th>
-                <th>Type</th>
-                <th>Sqft</th>
-                <th>Qty</th>
-                <th>Rate</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, index) => {
-                const sqft =
-                  item.rateType === "sqft" && item.height && item.width
-                    ? (item.height * item.width) / 92903
-                    : null;
-
-                const amount =
-                  item.rateType === "sqft"
-                    ? Math.round((sqft || 0) * item.quantity * item.rate)
-                    : Math.round(item.rate * item.quantity);
-
-                return (
-                  <tr key={index}>
-                    <td>{item.partName}</td>
-                    <td>{item.rateType === "sqft" ? "Sqft" : "Fixed"}</td>
-                    <td>{item.height}</td>
-                    <td>{item.width}</td>
-                    <td>{item.glassThickness || "-"}</td>
-                    <td>{item.glassType}</td>
-                    <td>{sqft ? sqft.toFixed(2) : "—"}</td>
-                    <td>{item.quantity}</td>
-                    <td>{item.rate}</td>
-                    <td>₹{amount}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
 
           <div className="grand-total">
             Grand Total: ₹{grandTotal}
-          </div>
-
-          <div className="spec-box">
-            <strong>Specifications & Terms</strong>
-            <p style={{ whiteSpace: "pre-line" }}>{specification}</p>
           </div>
         </div>
       </section>
