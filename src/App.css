@@ -3,15 +3,15 @@
    =============================== */
 
 :root {
-  --primary: #1f7a8c;          /* Steel blue / deep teal */
-  --primary-light: #f4f9fb;    /* Light background */
-  --border: #d6e4ea;           /* Soft grey borders */
+  --primary: #1f7a8c;
+  --primary-light: #f4f9fb;
+  --border: #d6e4ea;
   --text-main: #2b2b2b;
 
-  --success-bg: #e6f4ea;       /* Add item */
+  --success-bg: #e6f4ea;
   --success-text: #1e7f43;
 
-  --danger-bg: #ffecec;        /* Remove item */
+  --danger-bg: #ffecec;
   --danger-text: #b00020;
 }
 
@@ -24,12 +24,9 @@ body {
   padding: 0;
   font-family: Arial, sans-serif;
   color: var(--text-main);
-  background: linear-gradient(
-    to bottom,
-    #eef6f9,
-    #f9fbfc
-  );
+  background: linear-gradient(to bottom, #eef6f9, #f9fbfc);
 }
+
 .company-logo {
   width: 400px;
   height: auto;
@@ -51,13 +48,12 @@ body {
 
 .invoice-header {
   display: flex;
-  justify-content: center;   /* center horizontally */
+  justify-content: center;
   align-items: center;
   border-bottom: 2px solid var(--border);
   padding-bottom: 14px;
   margin-bottom: 20px;
 }
-
 
 header h1 {
   margin: 0;
@@ -131,7 +127,6 @@ button {
   border: none;
 }
 
-/* Add item */
 button.add-item {
   background-color: var(--success-bg);
   border: 1px solid #b7e1c1;
@@ -140,7 +135,6 @@ button.add-item {
   cursor: pointer;
 }
 
-/* Remove item */
 button.remove-item {
   background-color: var(--danger-bg);
   border: 1px solid #f5bcbc;
@@ -150,7 +144,6 @@ button.remove-item {
   border-radius: 50%;
 }
 
-/* Print button */
 button.print-btn {
   background-color: var(--primary);
   color: #ffffff;
@@ -209,10 +202,12 @@ td {
 /* ===============================
    PRINT (EDGE SAFE)
    =============================== */
+
 @page {
   size: A4;
   margin: 12mm;
 }
+
 @media print {
   html,
   body {
@@ -240,7 +235,6 @@ td {
     padding: 0;
   }
 
-  /* Make invoice fit page */
   .app {
     box-shadow: none;
     padding: 0;
@@ -248,7 +242,6 @@ td {
     max-width: 100%;
   }
 
-  /* Table fixes */
   table {
     width: 100%;
     table-layout: fixed;
@@ -261,22 +254,24 @@ td {
     word-wrap: break-word;
   }
 
-  /* Reduce heading size slightly */
   h1 {
     font-size: 22px;
   }
 
-  h2, h3 {
+  h2,
+  h3 {
     font-size: 15px;
   }
 }
+
 @media print {
   .company-logo {
     width: 800px;
   }
 }
+
 /* ===============================
-   RESPONSIVE TABLE FIX (MOBILE)
+   RESPONSIVE TABLE FIX
    =============================== */
 
 .table-wrapper {
@@ -294,6 +289,33 @@ td {
   }
 }
 
+/* ===============================
+   HOME PAGE BACKGROUND (ADDED)
+   =============================== */
 
+.home-bg {
+  min-height: 100vh;
+  width: 100%;
+  background-image: url("./assets/home-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
 
+.home-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.65);
+  z-index: 0;
+}
+
+.home-bg .app {
+  position: relative;
+  z-index: 1;
+}
