@@ -24,7 +24,8 @@ body {
   padding: 0;
   font-family: Arial, sans-serif;
   color: var(--text-main);
-  background: linear-gradient(to bottom, #eef6f9, #f9fbfc);
+  background: linear-gradient(135deg, rgba(31, 122, 140, 0.8) 0%, rgba(19, 41, 61, 0.9) 100%);
+  background-attachment: fixed;
 }
 
 .company-logo {
@@ -36,10 +37,13 @@ body {
 .app {
   max-width: 900px;
   margin: 30px auto;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   padding: 25px;
-  border-radius: 6px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* ===============================
@@ -71,10 +75,10 @@ header p {
    =============================== */
 
 .no-print {
-  background-color: #f7fbfd;
-  border: 1px solid var(--border);
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   padding: 20px;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-bottom: 25px;
 }
 
@@ -100,21 +104,34 @@ textarea {
   resize: vertical;
 }
 
+/* Remove number input spinners */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 /* ===============================
    ITEM ROWS
    =============================== */
 
 .item-row {
-  background-color: #fbfdff;
+  background-color: rgba(255, 255, 255, 0.6);
   padding: 12px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
   margin-bottom: 12px;
 }
 
 section h2,
 section h3 {
   color: var(--primary);
+  margin-top: 1.5em;
 }
 
 /* ===============================
@@ -122,17 +139,22 @@ section h3 {
    =============================== */
 
 button {
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 13px;
   border: none;
+  transition: all 0.2s ease;
 }
 
 button.add-item {
   background-color: var(--success-bg);
   border: 1px solid #b7e1c1;
   color: var(--success-text);
-  padding: 4px 10px;
+  padding: 6px 12px;
   cursor: pointer;
+}
+
+button.add-item:hover {
+  background-color: #d1edda;
 }
 
 button.remove-item {
@@ -144,12 +166,31 @@ button.remove-item {
   border-radius: 50%;
 }
 
-button.print-btn {
-  background-color: var(--primary);
-  color: #ffffff;
-  padding: 8px 16px;
+button.remove-item:hover {
+  background-color: #fcebeb;
+}
+
+button.print-btn,
+button.back-btn {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  color: #0b2031;
+  font-weight: bold;
+  padding: 10px 20px;
   cursor: pointer;
   margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0, 242, 254, 0.3);
+}
+
+button.print-btn:hover,
+button.back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 242, 254, 0.4);
+}
+
+button.back-btn {
+  margin-right: 15px;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* ===============================
@@ -192,11 +233,15 @@ td {
    SPECIFICATIONS
    =============================== */
 
-.spec-box {
-  margin-top: 20px;
-  padding: 12px;
+.print-specifications {
+  margin-top: 30px;
+  padding: 15px;
   border: 1px solid var(--border);
-  background-color: #fcfcfc;
+  background-color: #f7fbfd;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 13px;
+  color: #333;
 }
 
 /* ===============================
@@ -209,6 +254,7 @@ td {
 }
 
 @media print {
+
   html,
   body {
     margin: 0;
@@ -300,7 +346,6 @@ td {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -311,11 +356,175 @@ td {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.65);
+  background: linear-gradient(135deg, rgba(31, 122, 140, 0.8) 0%, rgba(19, 41, 61, 0.9) 100%);
   z-index: 0;
 }
 
-.home-bg .app {
+.home-card {
   position: relative;
   z-index: 1;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 50px 40px;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  max-width: 550px;
+  text-align: center;
+  transform: translateY(0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.home-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.6);
+}
+
+.home-content {
+  color: white;
+}
+
+.home-title {
+  font-size: 42px;
+  font-weight: 800;
+  margin-top: 0;
+  margin-bottom: 15px;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.home-subtitle {
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 40px;
+}
+
+.cta-button {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  color: #0b2031;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 16px 36px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 10px 20px rgba(0, 242, 254, 0.3);
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 30px rgba(0, 242, 254, 0.4);
+}
+
+.cta-button .arrow {
+  transition: transform 0.3s ease;
+}
+
+.cta-button:hover .arrow {
+  transform: translateX(4px);
+}
+
+/* ===============================
+   ENHANCED INVOICE FORM
+   =============================== */
+
+.edit-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px dashed rgba(19, 41, 61, 0.2);
+}
+
+.edit-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-row.multi-col {
+  flex-direction: row;
+  gap: 15px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.input-group label {
+  margin-top: 0;
+  margin-bottom: 6px;
+  font-weight: bold;
+  font-size: 12px;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+.custom-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: white;
+  height: 36px;
+  color: var(--text-main);
+  outline: none;
+}
+
+.custom-select:focus,
+.input-group input:focus {
+  border-color: var(--primary);
+}
+
+.input-group input {
+  height: 36px;
+  padding: 8px;
+  outline: none;
+}
+
+.edit-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+@media (max-width: 600px) {
+  .edit-row.multi-col {
+    flex-direction: column;
+    gap: 10px;
+  }
 }

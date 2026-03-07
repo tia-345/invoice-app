@@ -1,32 +1,28 @@
 import { Link } from "react-router-dom";
+import "./App.css";
 
 function Home() {
   return (
     <div className="home-bg">
-      <div className="app">
-        <h1 style={{ color: "#1f7a8c" }}>Invoice Generator</h1>
+      <div className="home-card">
+        <div className="home-content">
+          <h1 className="home-title">
+            <span className="text-gradient">Janus</span><br />
+            Invoice Generator
+          </h1>
 
-        <p style={{ fontSize: "15px", marginTop: "10px" }}>
-          A simple construction billing tool for WPC & UPVC works.
-          Create professional invoices and export them as PDF.
-        </p>
+          <p className="home-subtitle">
+            A simple, professional construction billing tool for WPC & UPVC works.
+            Create beautifully styled invoices and effortlessly export to PDF.
+          </p>
 
-        <Link to="/invoice">
-          <button
-            style={{
-              marginTop: "20px",
-              backgroundColor: "#1f7a8c",
-              color: "white",
-              padding: "10px 18px",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "14px"
-            }}
-          >
-            Create Invoice
-          </button>
-        </Link>
+          <Link to="/invoice" style={{ textDecoration: 'none' }}>
+            <button className="cta-button">
+              Create New Invoice
+              <span className="arrow">→</span>
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );

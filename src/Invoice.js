@@ -14,6 +14,10 @@ function Invoice() {
   const [items, setItems] = useState([
     {
       partName: "",
+      unit: "mm",
+      glassThickness: "",
+      glassType: "",
+      customGlassType: "",
       width: "",
       height: "",
       quantity: "",
@@ -27,6 +31,10 @@ function Invoice() {
     const newItems = [...items];
     newItems.splice(index + 1, 0, {
       partName: "",
+      unit: "mm",
+      glassThickness: "",
+      glassType: "",
+      customGlassType: "",
       width: "",
       height: "",
       quantity: "",
@@ -49,10 +57,14 @@ function Invoice() {
   };
 
   const grandTotal = items.reduce((total, item) => {
-    const sqft =
-      item.rateType === "sqft" && item.width && item.height
-        ? (item.width * item.height) / 92903
-        : 0;
+    let sqft = 0;
+    if (item.rateType === "sqft" && item.width && item.height) {
+      if (item.unit === "ft") {
+        sqft = item.width * item.height;
+      } else {
+        sqft = (item.width * item.height) / 92903;
+      }
+    }
 
     const amount =
       item.rateType === "sqft"
@@ -74,7 +86,7 @@ function Invoice() {
         </header>
 
         <section className="no-print">
-          <h2>Bill Details</h2>
+          <h2 className="text-gradient" style={{ marginTop: 0 }}>Bill Details</h2>
 
           <label>Bill Number</label>
           <input value={billNo} onChange={(e) => setBillNo(e.target.value)} />
@@ -92,110 +104,224 @@ function Invoice() {
             onChange={(e) => setClientAddress(e.target.value)}
           />
 
-          <h3>Items</h3>
+          <h3 className="text-gradient">Items</h3>
 
           {items.map((item, index) => (
             <div key={index} className="item-row">
 
               {!item.isEditing && (
-                <>
-                  <strong>{index + 1}. {item.partName}</strong>
-                  <p>
-                    {item.width} × {item.height} mm | Qty {item.quantity} | Rate {item.rate}
-                  </p>
-
-                  <button className="add-item" onClick={() => toggleEdit(index, true)}>
-                    Edit
-                  </button>
-
-                  <button
-                    className="add-item"
-                    onClick={() => addRowAfter(index)}
-                    style={{ marginLeft: "6px" }}
-                  >
-                    +
-                  </button>
-                </>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <strong>
+                      {index + 1}. {item.partName}{" "}
+                      {item.glassType ? ` - ${item.glassType === "Other" ? item.customGlassType : item.glassType}` : ""}{" "}
+                      {item.glassThickness ? ` (${item.glassThickness})` : ""}
+                    </strong>
+                    <p>
+                      {item.width} × {item.height} {item.unit || "mm"}{" "}
+                      {item.rateType === "sqft" && item.width && item.height
+                        ? `| Sqft: ${item.unit === "ft" ? (item.width * item.height).toFixed(2) : ((item.width * item.height) / 92903).toFixed(2)} `
+                        : ""}
+                      | Qty {item.quantity} | Rate {item.rate} ({item.rateType})
+                    </p>
+                  </div>
+                  <div style={{ display: "flex" }}>
+                    <button className="add-item" onClick={() => toggleEdit(index, true)}>
+                      Edit
+                    </button>
+                    <button
+                      className="add-item"
+                      onClick={() => addRowAfter(index)}
+                      style={{ marginLeft: "6px" }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
               )}
 
               {item.isEditing && (
-                <>
-                  <label>Particulars</label>
-                  <input
-                    value={item.partName}
-                    onChange={(e) => {
-                      const newItems = [...items];
-                      newItems[index].partName = e.target.value;
-                      setItems(newItems);
-                    }}
-                  />
+                <div className="edit-grid">
+                  <div className="edit-row">
+                    <div className="input-group">
+                      <label>Particulars</label>
+                      <input
+                        value={item.partName}
+                        onChange={(e) => {
+                          const newItems = [...items];
+                          newItems[index].partName = e.target.value;
+                          setItems(newItems);
+                        }}
+                        placeholder="Window, Door, etc."
+                      />
+                    </div>
+                  </div>
 
-                  <label>Width (mm)</label>
-                  <input
-                    type="number"
-                    value={item.width}
-                    onChange={(e) => {
-                      const newItems = [...items];
-                      newItems[index].width = e.target.value;
-                      setItems(newItems);
-                    }}
-                  />
+                  <div className="edit-row multi-col">
+                    <div className="input-group">
+                      <label>Glass Type</label>
+                      <select
+                        value={item.glassType || ""}
+                        onChange={(e) => {
+                          const newItems = [...items];
+                          newItems[index].glassType = e.target.value;
+                          if (e.target.value !== "Other") {
+                            newItems[index].customGlassType = "";
+                          }
+                          setItems(newItems);
+                        }}
+                        className="custom-select"
+                      >
+                        <option value="">None</option>
+                        <option value="Plane">Plane</option>
+                        <option value="Toughened">Toughened</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
 
-                  <label>Height (mm)</label>
-                  <input
-                    type="number"
-                    value={item.height}
-                    onChange={(e) => {
-                      const newItems = [...items];
-                      newItems[index].height = e.target.value;
-                      setItems(newItems);
-                    }}
-                  />
+                    {item.glassType === "Other" && (
+                      <div className="input-group">
+                        <label>Custom Glass</label>
+                        <input
+                          value={item.customGlassType || ""}
+                          onChange={(e) => {
+                            const newItems = [...items];
+                            newItems[index].customGlassType = e.target.value;
+                            setItems(newItems);
+                          }}
+                          placeholder="Type glass name"
+                        />
+                      </div>
+                    )}
 
-                  <label>Quantity</label>
-                  <input
-                    type="number"
-                    value={item.quantity}
-                    onChange={(e) => {
-                      const newItems = [...items];
-                      newItems[index].quantity = e.target.value;
-                      setItems(newItems);
-                    }}
-                  />
+                    <div className="input-group">
+                      <label>Thickness</label>
+                      <input
+                        value={item.glassThickness || ""}
+                        onChange={(e) => {
+                          const newItems = [...items];
+                          newItems[index].glassThickness = e.target.value;
+                          setItems(newItems);
+                        }}
+                        placeholder="e.g. 5mm"
+                      />
+                    </div>
+                  </div>
 
-                  <label>Rate</label>
-                  <input
-                    type="number"
-                    value={item.rate}
-                    onChange={(e) => {
-                      const newItems = [...items];
-                      newItems[index].rate = e.target.value;
-                      setItems(newItems);
-                    }}
-                  />
+                  <div className="edit-row multi-col">
+                    <div className="input-group">
+                      <label>Unit</label>
+                      <select
+                        value={item.unit || "mm"}
+                        onChange={(e) => {
+                          const newItems = [...items];
+                          newItems[index].unit = e.target.value;
+                          setItems(newItems);
+                        }}
+                        className="custom-select"
+                      >
+                        <option value="mm">mm</option>
+                        <option value="ft">feet</option>
+                      </select>
+                    </div>
 
-                  <button
-                    className="print-btn"
-                    onClick={() => toggleEdit(index, false)}
-                  >
-                    Done
-                  </button>
+                    <div className="input-group">
+                      <label>Width</label>
+                      <input
+                        type="number"
+                        value={item.width}
+                        onChange={(e) => {
+                          const newItems = [...items];
+                          newItems[index].width = e.target.value;
+                          setItems(newItems);
+                        }}
+                      />
+                    </div>
 
-                  {items.length > 1 && (
+                    <div className="input-group">
+                      <label>Height</label>
+                      <input
+                        type="number"
+                        value={item.height}
+                        onChange={(e) => {
+                          const newItems = [...items];
+                          newItems[index].height = e.target.value;
+                          setItems(newItems);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="edit-row multi-col">
+                    <div className="input-group">
+                      <label>Quantity</label>
+                      <input
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const newItems = [...items];
+                          newItems[index].quantity = e.target.value;
+                          setItems(newItems);
+                        }}
+                      />
+                    </div>
+
+                    <div className="input-group">
+                      <label>Rate Type</label>
+                      <select
+                        value={item.rateType || "sqft"}
+                        onChange={(e) => {
+                          const newItems = [...items];
+                          newItems[index].rateType = e.target.value;
+                          setItems(newItems);
+                        }}
+                        className="custom-select"
+                      >
+                        <option value="sqft">Per Sqft</option>
+                        <option value="piece">Per Piece</option>
+                      </select>
+                    </div>
+
+                    <div className="input-group">
+                      <label>Rate (₹)</label>
+                      <input
+                        type="number"
+                        value={item.rate}
+                        onChange={(e) => {
+                          const newItems = [...items];
+                          newItems[index].rate = e.target.value;
+                          setItems(newItems);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="edit-actions">
                     <button
-                      className="remove-item"
-                      onClick={() => removeRow(index)}
-                      style={{ marginLeft: "8px" }}
+                      className="print-btn"
+                      onClick={() => toggleEdit(index, false)}
+                      style={{ marginBottom: 0 }}
                     >
-                      ✕
+                      Done
                     </button>
-                  )}
-                </>
+
+                    {items.length > 1 && (
+                      <button
+                        className="remove-item flex-center"
+                        onClick={() => removeRow(index)}
+                        style={{ marginLeft: "8px" }}
+                        title="Remove Item"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           ))}
 
-          <h3>Specification / Terms</h3>
+          <h3 className="text-gradient">Specification / Terms</h3>
           <textarea
             rows="5"
             value={specification}
@@ -222,8 +348,11 @@ function Invoice() {
                 <tr>
                   <th>SI</th>
                   <th>Particulars</th>
+                  <th>Glass</th>
                   <th>W</th>
                   <th>H</th>
+                  <th>Unit</th>
+                  <th>Sqft</th>
                   <th>Qty</th>
                   <th>Rate</th>
                   <th>Amount</th>
@@ -231,24 +360,34 @@ function Invoice() {
               </thead>
               <tbody>
                 {items.map((item, index) => {
-                  const sqft =
-                    item.rateType === "sqft"
-                      ? (item.width * item.height) / 92903
-                      : 0;
+                  let sqft = 0;
+                  if (item.rateType === "sqft" && item.width && item.height) {
+                    if (item.unit === "ft") {
+                      sqft = item.width * item.height;
+                    } else {
+                      sqft = (item.width * item.height) / 92903;
+                    }
+                  }
 
                   const amount =
                     item.rateType === "sqft"
                       ? Math.round(sqft * item.quantity * item.rate)
                       : Math.round(item.rate * item.quantity);
 
+                  const glassName = item.glassType === "Other" ? item.customGlassType : item.glassType;
+                  const glassText = [glassName, item.glassThickness].filter(Boolean).join(" - ");
+
                   return (
                     <tr key={index}>
                       <td>{index + 1}</td>
                       <td>{item.partName}</td>
+                      <td>{glassText}</td>
                       <td>{item.width}</td>
                       <td>{item.height}</td>
+                      <td>{item.unit || "mm"}</td>
+                      <td>{item.rateType === "sqft" && item.width && item.height ? sqft.toFixed(2) : "-"}</td>
                       <td>{item.quantity}</td>
-                      <td>{item.rate}</td>
+                      <td>{item.rateType === "sqft" ? `${item.rate}/sqft` : item.rate}</td>
                       <td>₹{amount}</td>
                     </tr>
                   );
@@ -260,6 +399,13 @@ function Invoice() {
           <div className="grand-total">
             Grand Total: ₹{grandTotal}
           </div>
+
+          {specification && (
+            <div className="print-specifications">
+              <strong>Specification / Terms:</strong>
+              <p style={{ whiteSpace: "pre-wrap", margin: "5px 0 0 0" }}>{specification}</p>
+            </div>
+          )}
         </div>
       </section>
     </>
