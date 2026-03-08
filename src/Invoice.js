@@ -1,17 +1,20 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./App.css";
 
 function Invoice() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [billNo, setBillNo] = useState("");
-  const [billDate, setBillDate] = useState("");
-  const [clientName, setClientName] = useState("");
-  const [clientAddress, setClientAddress] = useState("");
-  const [specification, setSpecification] = useState("");
+  const historyData = location.state?.historyItem;
 
-  const [items, setItems] = useState([
+  const [billNo, setBillNo] = useState(historyData?.billNo || "");
+  const [billDate, setBillDate] = useState(historyData?.billDate || "");
+  const [clientName, setClientName] = useState(historyData?.clientName || "");
+  const [clientAddress, setClientAddress] = useState(historyData?.clientAddress || "");
+  const [specification, setSpecification] = useState(historyData?.specification || "");
+
+  const [items, setItems] = useState(historyData?.items || [
     {
       partName: "",
       unit: "mm",
@@ -73,6 +76,32 @@ function Invoice() {
 
     return total + (amount || 0);
   }, 0);
+
+  const saveToHistory = () => {
+    const invoiceData = {
+      id: historyData?.id || Date.now().toString(),
+      billNo,
+      billDate,
+      clientName,
+      clientAddress,
+      specification,
+      items,
+      grandTotal,
+      savedAt: new Date().toISOString()
+    };
+
+    const existingHistory = JSON.parse(localStorage.getItem('invoiceHistory') || '[]');
+    const existingIndex = existingHistory.findIndex(item => item.id === invoiceData.id);
+
+    if (existingIndex !== -1) {
+      existingHistory[existingIndex] = invoiceData;
+    } else {
+      existingHistory.unshift(invoiceData); // Add to beginning
+    }
+
+    localStorage.setItem('invoiceHistory', JSON.stringify(existingHistory));
+    alert("Invoice saved to history!");
+  };
 
   return (
     <>
@@ -329,9 +358,14 @@ function Invoice() {
           />
         </section>
 
-        <button className="no-print print-btn" onClick={() => window.print()}>
-          Download / Print Invoice
-        </button>
+        <div className="no-print" style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          <button className="print-btn" onClick={() => window.print()} style={{ flex: 1 }}>
+            Download / Print Invoice
+          </button>
+          <button className="print-btn" onClick={saveToHistory} style={{ flex: 1, backgroundColor: '#4CAF50' }}>
+            Save to History
+          </button>
+        </div>
       </div>
 
       {/* PRINT VIEW */}
@@ -341,6 +375,18 @@ function Invoice() {
           <header className="invoice-header">
             <img src="/logo.png" alt="Janus Logo" className="company-logo" />
           </header>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', marginTop: '10px' }}>
+            <div>
+              <strong style={{ fontSize: '1.1em' }}>To:</strong><br />
+              <strong>{clientName}</strong><br />
+              <div style={{ whiteSpace: 'pre-wrap', marginTop: '5px' }}>{clientAddress}</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <strong>Bill No:</strong> {billNo}<br />
+              <strong>Date:</strong> {billDate ? new Date(billDate).toLocaleDateString() : ''}
+            </div>
+          </div>
 
           <div className="table-wrapper">
             <table>
